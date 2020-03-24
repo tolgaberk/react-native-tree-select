@@ -199,7 +199,7 @@ import TreeSelect from 'react-native-tree-select';
 | generalContainerStyle | Wrapper Components style                                                                                                    | object(css) | no      | {}                              | -                            |
 
 3.本地运行
-在本地运行，首先得克隆该项目，使用下面命令进行克隆，[克隆地址](https://github.com/suwu150/react-native-tree-select)
+在本地运行，首先得克隆该项目，使用下面命令进行克隆，[克隆地址](https://github.com/tolgaberk/react-native-tree-select)
 先克隆该项目
 
 ```
