@@ -1,12 +1,20 @@
-import React, { Component } from 'react';
-import { StyleSheet, View, TextInput, FlatList, Text, TouchableOpacity } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { breadthFirstRecursion } from '../utils/menutransform';
+import React, { Component } from "react";
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback
+} from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { breadthFirstRecursion } from "../utils/menutransform";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff"
   },
   textName: {
     fontSize: 14,
@@ -14,13 +22,13 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white"
   },
   collapseIcon: {
     width: 0,
     height: 0,
     marginRight: 2,
-    borderStyle: 'solid',
+    borderStyle: "solid"
   }
 });
 
@@ -31,31 +39,38 @@ export default class TreeSelect extends Component {
     this.state = {
       nodesStatus: this._initNodesStatus(),
       currentNode: this._initCurrentNode(),
-      searchValue: ''
+      searchValue: ""
     };
   }
 
   _initCurrentNode = () => {
     const { defaultSelectedId, selectType } = this.props;
-    if (selectType === 'multiple') {
+    if (selectType === "multiple") {
       return defaultSelectedId || [];
     }
-    return defaultSelectedId && defaultSelectedId[0] || null;
+    return (defaultSelectedId && defaultSelectedId[0]) || null;
   };
 
   _initNodesStatus = () => {
-    const { isOpen = false, data, openIds = [], defaultSelectedId = [] } = this.props;
+    const {
+      isOpen = false,
+      data,
+      openIds = [],
+      defaultSelectedId = []
+    } = this.props;
     const nodesStatus = new Map();
     if (!isOpen) {
       if (openIds && openIds.length) {
-        for (let id of openIds) { // eslint-disable-line
+        for (let id of openIds) {
+          // eslint-disable-line
           const routes = this._find(data, id);
           routes.map(parent => nodesStatus.set(parent.id, true));
         }
       }
       // 设置默认选中时父节点的展开操作
       if (defaultSelectedId && defaultSelectedId.length) {
-        for (let id of defaultSelectedId) { // eslint-disable-line
+        for (let id of defaultSelectedId) {
+          // eslint-disable-line
           const routes = this._find(data, id);
           routes.map(parent => nodesStatus.set(parent.id, true));
         }
@@ -78,10 +93,10 @@ export default class TreeSelect extends Component {
           name: item.name,
           parentId: item.parentId
         });
-        if (item['id'] === innerId) {
+        if (item["id"] === innerId) {
           going = false;
-        } else if (item['children']) {
-          walker(item['children'], innerId);
+        } else if (item["children"]) {
+          walker(item["children"], innerId);
         } else {
           stack.pop();
         }
@@ -93,143 +108,203 @@ export default class TreeSelect extends Component {
     return stack;
   };
 
-  _onPressCollapse = ({ e, item }) => { // eslint-disable-line
+  _onPressCollapse = ({ e, item }) => {
+    // eslint-disable-line
     const { data, selectType, leafCanBeSelected } = this.props;
     const { currentNode } = this.state;
     const routes = this._find(data, item.id);
-    this.setState((state) => {
-      const nodesStatus = new Map(state.nodesStatus);
-      nodesStatus.set(item && item.id, !nodesStatus.get(item && item.id)); // toggle
-      // 计算currentNode的内容
-      if (selectType === 'multiple') {
-        const tempCurrentNode = currentNode.includes(item.id) ?
-          currentNode.filter(nodeid => nodeid !== item.id) : currentNode.concat(item.id)
-        if (leafCanBeSelected) {
-          return { nodesStatus };
+    this.setState(
+      state => {
+        const nodesStatus = new Map(state.nodesStatus);
+        nodesStatus.set(item && item.id, !nodesStatus.get(item && item.id)); // toggle
+        // 计算currentNode的内容
+        if (selectType === "multiple") {
+          const tempCurrentNode = currentNode.includes(item.id)
+            ? currentNode.filter(nodeid => nodeid !== item.id)
+            : currentNode.concat(item.id);
+          if (leafCanBeSelected) {
+            return { nodesStatus };
+          }
+          return { currentNode: tempCurrentNode, nodesStatus };
+        } else {
+          if (leafCanBeSelected) {
+            return { nodesStatus };
+          }
+          return { currentNode: item.id, nodesStatus };
         }
-        return { currentNode: tempCurrentNode, nodesStatus };
-      } else {
-        if (leafCanBeSelected) {
-          return { nodesStatus };
-        }
-        return { currentNode: item.id, nodesStatus };
+      },
+      () => {
+        const { onClick } = this.props;
+        onClick &&
+          onClick({ item, routes, currentNode: this.state.currentNode });
       }
-    }, () => {
-      const { onClick } = this.props;
-      onClick && onClick({ item, routes, currentNode: this.state.currentNode });
-    });
+    );
   };
 
-  _onClickLeaf = ({ e, item }) => { // eslint-disable-line
+  _onClickLeaf = ({ e, item }) => {
+    // eslint-disable-line
     const { onClickLeaf, onClick, selectType, leafCanBeSelected } = this.props;
     const { data } = this.props;
     const { currentNode } = this.state;
     const routes = this._find(data, item.id);
-    this.setState((state) => {
-      // 计算currentNode的内容
-      if (selectType === 'multiple') {
-        const tempCurrentNode = currentNode.includes(item.id) ?
-          currentNode.filter(nodeid => nodeid !== item.id) : currentNode.concat(item.id)
-        return {
-          currentNode: tempCurrentNode,
-        };
-      } else {
-        return {
-          currentNode: item.id
-        };
+    this.setState(
+      state => {
+        // 计算currentNode的内容
+        if (selectType === "multiple") {
+          const tempCurrentNode = currentNode.includes(item.id)
+            ? currentNode.filter(nodeid => nodeid !== item.id)
+            : currentNode.concat(item.id);
+          return {
+            currentNode: tempCurrentNode
+          };
+        } else {
+          return {
+            currentNode: item.id
+          };
+        }
+      },
+      () => {
+        onClickLeaf &&
+          onClickLeaf({ item, routes, currentNode: this.state.currentNode });
       }
-    }, () => {
-      onClick && onClick({ item, routes, currentNode: this.state.currentNode });
-      onClickLeaf && onClickLeaf({ item, routes, currentNode: this.state.currentNode });
-    });
+    );
   };
 
-  _renderTreeNodeIcon = (isOpen) => {
-    const { isShowTreeId = false, selectedItemStyle, itemStyle, treeNodeStyle } = this.props;
-    const collapseIcon = isOpen ? {
-      borderRightWidth: 5,
-      borderRightColor: 'transparent',
-      borderLeftWidth: 5,
-      borderLeftColor: 'transparent',
-      borderTopWidth: 10,
-      borderTopColor: 'black',
-    } : {
-      borderBottomWidth: 5,
-      borderBottomColor: 'transparent',
-      borderTopWidth: 5,
-      borderTopColor: 'transparent',
-      borderLeftWidth: 10,
-      borderLeftColor: 'black',
-    };
+  _renderTreeNodeIcon = (isOpen, onClick) => {
+    const {
+      isShowTreeId = false,
+      selectedItemStyle,
+      itemStyle,
+      treeNodeStyle
+    } = this.props;
+    const collapseIcon = isOpen
+      ? {
+          borderRightWidth: 5,
+          borderRightColor: "transparent",
+          borderLeftWidth: 5,
+          borderLeftColor: "transparent",
+          borderTopWidth: 10,
+          borderTopColor: "black"
+        }
+      : {
+          borderBottomWidth: 5,
+          borderBottomColor: "transparent",
+          borderTopWidth: 5,
+          borderTopColor: "transparent",
+          borderLeftWidth: 10,
+          borderLeftColor: "black"
+        };
     const openIcon = treeNodeStyle && treeNodeStyle.openIcon;
     const closeIcon = treeNodeStyle && treeNodeStyle.closeIcon;
 
-    return openIcon && closeIcon ? <View>{isOpen ? openIcon : closeIcon}</View> :
-      <View style={[styles.collapseIcon, collapseIcon]} />;
+    return openIcon && closeIcon ? (
+      <TouchableWithoutFeedback onPress={onClick}>
+        {isOpen ? openIcon : closeIcon}
+      </TouchableWithoutFeedback>
+    ) : (
+      <TouchableWithoutFeedback
+        onPress={onClick}
+        style={[styles.collapseIcon, collapseIcon]}
+      />
+    );
   };
 
   _renderRow = ({ item }) => {
     const { currentNode } = this.state;
-    const { isShowTreeId = false, selectedItemStyle, itemStyle, treeNodeStyle, selectType = 'single', leafCanBeSelected } = this.props;
+    const {
+      isShowTreeId = false,
+      selectedItemStyle,
+      itemStyle,
+      treeNodeStyle,
+      selectType = "single",
+      leafCanBeSelected
+    } = this.props;
     const { backgroudColor, fontSize, color } = itemStyle && itemStyle;
     const openIcon = treeNodeStyle && treeNodeStyle.openIcon;
     const closeIcon = treeNodeStyle && treeNodeStyle.closeIcon;
 
-    const selectedBackgroudColor = selectedItemStyle && selectedItemStyle.backgroudColor;
+    const selectedBackgroudColor =
+      selectedItemStyle && selectedItemStyle.backgroudColor;
     const selectedFontSize = selectedItemStyle && selectedItemStyle.fontSize;
     const selectedColor = selectedItemStyle && selectedItemStyle.color;
-    const isCurrentNode = selectType === 'multiple' ? currentNode.includes(item.id) : (currentNode === item.id);
+    const isCurrentNode =
+      selectType === "multiple"
+        ? currentNode.includes(item.id)
+        : currentNode === item.id;
 
     if (item && item.children && item.children.length) {
-      const isOpen = this.state.nodesStatus && this.state.nodesStatus.get(item && item.id) || false;
+      const isOpen =
+        (this.state.nodesStatus &&
+          this.state.nodesStatus.get(item && item.id)) ||
+        false;
       return (
         <View>
-          <TouchableOpacity onPress={(e) => this._onPressCollapse({ e, item })} >
-            <View style={{
-              flexDirection: 'row',
-              backgroundColor: !leafCanBeSelected && isCurrentNode ? selectedBackgroudColor || '#FFEDCE' : backgroudColor || '#fff',
-              marginBottom: 2,
-              height: 30,
-              alignItems: 'center'
-            }}
+          <TouchableOpacity onPress={e => this._onPressCollapse({ e, item })}>
+            <View
+              style={{
+                flexDirection: "row",
+                backgroundColor:
+                  !leafCanBeSelected && isCurrentNode
+                    ? selectedBackgroudColor || "#FFEDCE"
+                    : backgroudColor || "#fff",
+                marginBottom: 2,
+                height: 30,
+                alignItems: "center"
+              }}
             >
-              { this._renderTreeNodeIcon(isOpen) }
-              {
-                isShowTreeId && <Text style={{ fontSize: 14, marginLeft: 4 }}>{item.id}</Text>
-              }
-              <Text style={[styles.textName, !leafCanBeSelected && isCurrentNode ?
-                { fontSize: selectedFontSize, color: selectedColor } : { fontSize, color }]}>{item.name}</Text>
+              {this._renderTreeNodeIcon(isOpen, onClick)}
+              {isShowTreeId && (
+                <Text style={{ fontSize: 14, marginLeft: 4 }}>{item.id}</Text>
+              )}
+              <Text
+                style={[
+                  styles.textName,
+                  !leafCanBeSelected && isCurrentNode
+                    ? { fontSize: selectedFontSize, color: selectedColor }
+                    : { fontSize, color }
+                ]}
+              >
+                {item.name}
+              </Text>
             </View>
           </TouchableOpacity>
-          {
-            !isOpen ? null :
-              <FlatList
-                keyExtractor={(childrenItem, i) => i.toString()}
-                style={{ flex: 1, marginLeft: 15 }}
-                onEndReachedThreshold={0.01}
-                {...this.props}
-                data={item.children}
-                extraData={this.state}
-                renderItem={this._renderRow}
-              />
-          }
+          {!isOpen ? null : (
+            <FlatList
+              keyExtractor={(childrenItem, i) => i.toString()}
+              style={{ flex: 1, marginLeft: 15 }}
+              onEndReachedThreshold={0.01}
+              {...this.props}
+              data={item.children}
+              extraData={this.state}
+              renderItem={this._renderRow}
+            />
+          )}
         </View>
       );
     }
     return (
-      <TouchableOpacity onPress={(e) => this._onClickLeaf({ e, item })}>
-        <View style={{
-          flexDirection: 'row',
-          backgroundColor: isCurrentNode ? selectedBackgroudColor || '#FFEDCE' : backgroudColor || '#fff',
-          marginBottom: 2,
-          height: 30,
-          alignItems: 'center'
-        }}
+      <TouchableOpacity onPress={e => this._onClickLeaf({ e, item })}>
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: isCurrentNode
+              ? selectedBackgroudColor || "#FFEDCE"
+              : backgroudColor || "#fff",
+            marginBottom: 2,
+            height: 30,
+            alignItems: "center"
+          }}
         >
           <Text
-            style={[styles.textName, isCurrentNode ?
-              { fontSize: selectedFontSize, color: selectedColor } : { fontSize, color }]}
-          >{item.name}</Text>
+            style={[
+              styles.textName,
+              isCurrentNode
+                ? { fontSize: selectedFontSize, color: selectedColor }
+                : { fontSize, color }
+            ]}
+          >
+            {item.name}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -237,7 +312,6 @@ export default class TreeSelect extends Component {
 
   _onSearch = () => {
     const { searchValue } = this.state;
-
   };
 
   _onChangeText = (key, value) => {
@@ -249,8 +323,16 @@ export default class TreeSelect extends Component {
   _renderSearchBar = () => {
     const { searchValue } = this.state;
     return (
-      <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 5,
-        borderColor: '#555', marginHorizontal: 10, }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          borderWidth: 1,
+          borderRadius: 5,
+          borderColor: "#555",
+          marginHorizontal: 10
+        }}
+      >
         <TextInput
           style={{ height: 38, paddingHorizontal: 5, flex: 1 }}
           value={searchValue}
@@ -258,24 +340,23 @@ export default class TreeSelect extends Component {
           underlineColorAndroid="transparent"
           autoCorrect={false}
           blurOnSubmit
-          clearButtonMode="while-editing"
-          placeholder="搜索节点"
-          placeholderTextColor="#e9e5e1"
-          onChangeText={(text) => this._onChangeText('searchValue', text)}
+          placeholder={"Arama"}
+          onChangeText={text => this._onChangeText("searchValue", text)}
         />
         <TouchableOpacity onPress={this._onSearch}>
-          <Ionicons name="ios-search" style={{ fontSize: 25, marginHorizontal: 5 }} />
+          <Ionicons
+            name="ios-search"
+            style={{ fontSize: 25, marginHorizontal: 5 }}
+          />
         </TouchableOpacity>
       </View>
     );
-  }
+  };
   render() {
     const { data } = this.props;
     return (
       <View style={styles.container}>
-        {/*{*/}
-        {/*this._renderSearchBar()*/}
-        {/*}*/}
+        {this._renderSearchBar()}
         <FlatList
           keyExtractor={(item, i) => i.toString()}
           style={{ flex: 1, marginVertical: 5, paddingHorizontal: 15 }}
