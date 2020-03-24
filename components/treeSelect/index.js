@@ -256,7 +256,13 @@ export default class TreeSelect extends Component {
                 </Text>
               )}
               <Text style={this.props.itemTextStyle}>{item.name}</Text>
-              <Text style={{ width: 30, alignSelf: "center" }}>
+              <Text
+                style={{
+                  width: 30,
+                  alignSelf: "center",
+                  color: this.props.itemTextStyle.color
+                }}
+              >
                 {item[this.props.additionalInfoKey]}
               </Text>
               {this._renderTreeNodeIcon(isOpen, e =>
@@ -298,7 +304,13 @@ export default class TreeSelect extends Component {
             }}
           >
             <Text style={this.props.itemTextStyle}>{item.name}</Text>
-            <Text style={{ width: 30, marginRight: "5%" }}>
+            <Text
+              style={{
+                width: 30,
+                marginRight: "5%",
+                color: this.props.itemTextStyle.color
+              }}
+            >
               {item[this.props.additionalInfoKey]}
             </Text>
           </View>
