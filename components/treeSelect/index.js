@@ -199,11 +199,11 @@ export default class TreeSelect extends Component {
     const closeIcon = treeNodeStyle && treeNodeStyle.closeIcon;
 
     return openIcon && closeIcon ? (
-      <TouchableWithoutFeedback onPress={onClick}>
+      <TouchableOpacity onPress={onClick}>
         {isOpen ? openIcon : closeIcon}
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     ) : (
-      <TouchableWithoutFeedback
+      <TouchableOpacity
         onPress={onClick}
         style={[styles.collapseIcon, collapseIcon]}
       />
@@ -251,6 +251,9 @@ export default class TreeSelect extends Component {
                 </Text>
               )}
               <Text style={this.props.itemTextStyle}>{item.name}</Text>
+              <Text style={{ alignSelf: "flex-end" }}>
+                {item[this.additionalInfoKey]}
+              </Text>
               {this._renderTreeNodeIcon(isOpen, e =>
                 this._onPressCollapse({ e, item })
               )}
@@ -284,6 +287,9 @@ export default class TreeSelect extends Component {
           }}
         >
           <Text style={this.props.itemTextStyle}>{item.name}</Text>
+          <Text style={{ alignSelf: "flex-end" }}>
+            {item[this.additionalInfoKey]}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -332,8 +338,8 @@ export default class TreeSelect extends Component {
     );
   };
   render() {
-    const { data } = this.props;
-    return (
+    const { data, Wrapper } = this.props;
+    if (Wrapper) {
       <View style={this.props.generalContainerStyle}>
         {/* {this._renderSearchBar()} */}
         <FlatList
@@ -343,9 +349,26 @@ export default class TreeSelect extends Component {
           {...this.props}
           data={data}
           extraData={this.state}
-          renderItem={this._renderRow}
+          renderItem={item => {
+            <Wrapper>(this._renderRow(item))</Wrapper>;
+          }}
         />
-      </View>
-    );
+      </View>;
+    } else {
+      return (
+        <View style={this.props.generalContainerStyle}>
+          {/* {this._renderSearchBar()} */}
+          <FlatList
+            keyExtractor={(item, i) => i.toString()}
+            style={{ flex: 1, marginVertical: 5, paddingHorizontal: 15 }}
+            onEndReachedThreshold={0.01}
+            {...this.props}
+            data={data}
+            extraData={this.state}
+            renderItem={this._renderRow}
+          />
+        </View>
+      );
+    }
   }
 }
