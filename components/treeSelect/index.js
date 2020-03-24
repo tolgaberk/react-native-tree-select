@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { breadthFirstRecursion } from "../utils/menutransform";
+import * as Animatable from "react-native-animatable";
 
 const styles = StyleSheet.create({
   container: {
@@ -220,7 +221,6 @@ export default class TreeSelect extends Component {
       selectType = "single",
       leafCanBeSelected
     } = this.props;
-
     const isCurrentNode =
       selectType === "multiple"
         ? currentNode.includes(item.id)
@@ -232,7 +232,12 @@ export default class TreeSelect extends Component {
           this.state.nodesStatus.get(item && item.id)) ||
         false;
       return (
-        <View>
+        <Animatable.View
+          animation={"fadeInLeft"}
+          duration={200}
+          ease={"easeIn"}
+          useNativeDriver
+        >
           <TouchableOpacity onPress={e => this.props.onClickLeaf(item)}>
             <View
               style={{
@@ -251,8 +256,8 @@ export default class TreeSelect extends Component {
                 </Text>
               )}
               <Text style={this.props.itemTextStyle}>{item.name}</Text>
-              <Text style={{ alignSelf: "flex-end" }}>
-                {item[this.additionalInfoKey]}
+              <Text style={{ width: 30, alignSelf: "center" }}>
+                {item[this.props.additionalInfoKey]}
               </Text>
               {this._renderTreeNodeIcon(isOpen, e =>
                 this._onPressCollapse({ e, item })
@@ -270,28 +275,35 @@ export default class TreeSelect extends Component {
               renderItem={this._renderRow}
             />
           )}
-        </View>
+        </Animatable.View>
       );
     }
     return (
-      <TouchableOpacity onPress={e => this._onClickLeaf({ e, item })}>
-        <View
-          style={{
-            flexDirection: "row",
-            borderBottomWidth: 1,
-            marginBottom: 2,
-            height: 30,
-            alignItems: "center",
-            flex: 1,
-            ...this.props.itemContainerStyle
-          }}
-        >
-          <Text style={this.props.itemTextStyle}>{item.name}</Text>
-          <Text style={{ alignSelf: "flex-end" }}>
-            {item[this.additionalInfoKey]}
-          </Text>
-        </View>
-      </TouchableOpacity>
+      <Animatable.View
+        animation={"fadeInLeft"}
+        duration={200}
+        ease={"easeIn"}
+        useNativeDriver
+      >
+        <TouchableOpacity onPress={e => this._onClickLeaf({ e, item })}>
+          <View
+            style={{
+              flexDirection: "row",
+              borderBottomWidth: 1,
+              marginBottom: 2,
+              height: 30,
+              alignItems: "center",
+              flex: 1,
+              ...this.props.itemContainerStyle
+            }}
+          >
+            <Text style={this.props.itemTextStyle}>{item.name}</Text>
+            <Text style={{ width: 30, marginRight: "5%" }}>
+              {item[this.props.additionalInfoKey]}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Animatable.View>
     );
   };
 
