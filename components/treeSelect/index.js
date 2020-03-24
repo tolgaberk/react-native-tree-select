@@ -18,7 +18,8 @@ const styles = StyleSheet.create({
   },
   textName: {
     fontSize: 14,
-    marginLeft: 5
+    marginLeft: 5,
+    flex: 5
   },
   contentContainer: {
     paddingBottom: 20,
@@ -219,14 +220,7 @@ export default class TreeSelect extends Component {
       selectType = "single",
       leafCanBeSelected
     } = this.props;
-    const { backgroudColor, fontSize, color } = itemStyle && itemStyle;
-    const openIcon = treeNodeStyle && treeNodeStyle.openIcon;
-    const closeIcon = treeNodeStyle && treeNodeStyle.closeIcon;
 
-    const selectedBackgroudColor =
-      selectedItemStyle && selectedItemStyle.backgroudColor;
-    const selectedFontSize = selectedItemStyle && selectedItemStyle.fontSize;
-    const selectedColor = selectedItemStyle && selectedItemStyle.color;
     const isCurrentNode =
       selectType === "multiple"
         ? currentNode.includes(item.id)
@@ -239,33 +233,27 @@ export default class TreeSelect extends Component {
         false;
       return (
         <View>
-          <TouchableOpacity onPress={e => this._onPressCollapse({ e, item })}>
+          <TouchableOpacity onPress={e => this.props.onClickLeaf(item)}>
             <View
               style={{
                 flexDirection: "row",
-                backgroundColor:
-                  !leafCanBeSelected && isCurrentNode
-                    ? selectedBackgroudColor || "#FFEDCE"
-                    : backgroudColor || "#fff",
+                borderBottomWidth: 1,
                 marginBottom: 2,
                 height: 30,
-                alignItems: "center"
+                alignItems: "center",
+                flex: 1,
+                ...this.props.itemContainerStyle
               }}
             >
-              {this._renderTreeNodeIcon(isOpen, onClick)}
               {isShowTreeId && (
-                <Text style={{ fontSize: 14, marginLeft: 4 }}>{item.id}</Text>
+                <Text style={{ fontSize: 14, marginLeft: 4, flex: 5 }}>
+                  {item.id}
+                </Text>
               )}
-              <Text
-                style={[
-                  styles.textName,
-                  !leafCanBeSelected && isCurrentNode
-                    ? { fontSize: selectedFontSize, color: selectedColor }
-                    : { fontSize, color }
-                ]}
-              >
-                {item.name}
-              </Text>
+              <Text style={this.props.itemTextStyle}>{item.name}</Text>
+              {this._renderTreeNodeIcon(isOpen, e =>
+                this._onPressCollapse({ e, item })
+              )}
             </View>
           </TouchableOpacity>
           {!isOpen ? null : (
@@ -287,24 +275,15 @@ export default class TreeSelect extends Component {
         <View
           style={{
             flexDirection: "row",
-            backgroundColor: isCurrentNode
-              ? selectedBackgroudColor || "#FFEDCE"
-              : backgroudColor || "#fff",
+            borderBottomWidth: 1,
             marginBottom: 2,
             height: 30,
-            alignItems: "center"
+            alignItems: "center",
+            flex: 1,
+            ...this.props.itemContainerStyle
           }}
         >
-          <Text
-            style={[
-              styles.textName,
-              isCurrentNode
-                ? { fontSize: selectedFontSize, color: selectedColor }
-                : { fontSize, color }
-            ]}
-          >
-            {item.name}
-          </Text>
+          <Text style={this.props.itemTextStyle}>{item.name}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -355,7 +334,7 @@ export default class TreeSelect extends Component {
   render() {
     const { data } = this.props;
     return (
-      <View style={styles.container}>
+      <View style={this.props.generalContainerStyle}>
         {this._renderSearchBar()}
         <FlatList
           keyExtractor={(item, i) => i.toString()}
