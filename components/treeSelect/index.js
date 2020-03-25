@@ -251,12 +251,21 @@ export default class TreeSelect extends Component {
               }}
             >
               {isShowTreeId && (
-                <Text style={{ fontSize: 14, marginLeft: 4, flex: 5 }}>
+                <Text
+                  numberOfLines={this.props.textLineCount}
+                  style={{ fontSize: 14, marginLeft: 4, flex: 5 }}
+                >
                   {item.id}
                 </Text>
               )}
-              <Text style={this.props.itemTextStyle}>{item.name}</Text>
               <Text
+                numberOfLines={this.props.textLineCount}
+                style={this.props.itemTextStyle}
+              >
+                {item.name}
+              </Text>
+              <Text
+                numberOfLines={this.props.textLineCount}
                 style={{
                   width: 30,
                   alignSelf: "center",
@@ -303,8 +312,14 @@ export default class TreeSelect extends Component {
               ...this.props.itemContainerStyle
             }}
           >
-            <Text style={this.props.itemTextStyle}>{item.name}</Text>
             <Text
+              numberOfLines={this.props.textLineCount}
+              style={this.props.itemTextStyle}
+            >
+              {item.name}
+            </Text>
+            <Text
+              numberOfLines={this.props.textLineCount}
               style={{
                 width: 30,
                 marginRight: "5%",
